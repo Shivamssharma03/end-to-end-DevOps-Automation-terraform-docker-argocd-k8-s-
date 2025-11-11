@@ -1,7 +1,3 @@
-
-
-
-
 #  EKS CONTROL PLANE
 
 resource "aws_eks_cluster" "this" {
@@ -65,9 +61,9 @@ resource "aws_eks_node_group" "this" {
   ]
 }
 
-# -----------------------------------------
-# ✅ IAM Access
-# -----------------------------------------
+
+# IAM Access
+
 resource "aws_eks_access_entry" "admin" {
   cluster_name  = aws_eks_cluster.this.name
   principal_arn = var.admin_principal_arn
