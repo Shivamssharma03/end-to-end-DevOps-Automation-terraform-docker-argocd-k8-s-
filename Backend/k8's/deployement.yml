@@ -19,22 +19,21 @@ spec:
     spec:
       containers:
         - name: backend
-          image: shivamsharma0309/cafeasebackend:v1   #docker image
+          image: shivamsharma0309/cafeasebackend:v1   # docker image
           ports:
             - containerPort: 5000
           volumeMounts:
             - name: secret-volume
-              mountPath: /app/config/.env      # where your app expects it env  
+              mountPath: /app/config/.env      # where your app expects it env
               subPath: .env
-      volumes:
-        - name: secret-volume
-          secret:
-            secretName: backend-secret
-
-          resources:
+          resources:                           # ✅ moved under container
             requests:
               cpu: "200m"
               memory: "256Mi"
             limits:
               cpu: "500m"
               memory: "512Mi"
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: backend-secret
