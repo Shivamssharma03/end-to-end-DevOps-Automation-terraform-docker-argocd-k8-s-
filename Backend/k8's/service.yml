@@ -9,7 +9,7 @@ spec:
   ports:
     - port: 5000
       targetPort: 5000
-  type: ClusterIP     # internal only 
+  type: LoadBalancer     # internal only 
 
 
 #########Keeps backend private
