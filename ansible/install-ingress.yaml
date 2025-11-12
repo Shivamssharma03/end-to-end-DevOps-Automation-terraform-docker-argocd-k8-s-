@@ -1,0 +1,79 @@
+---
+- name: Reinstall NGINX Ingress Controller with Public NLB on EKS
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Uninstall existing ingress-nginx Helm release (if any)
+      kubernetes.core.helm:
+        name: ingress-nginx
+        release_namespace: ingress-nginx
+        state: absent
+      ignore_errors: true
+
+    - name: Delete ingress-nginx namespace (if it exists)
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: ingress-nginx
+        state: absent
+      ignore_errors: true
+
+    - name: Add ingress-nginx Helm repository
+      kubernetes.core.helm_repository:
+        name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
+        state: present
+
+    - name: Deploy ingress-nginx with public NLB annotations
+      kubernetes.core.helm:
+        name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        release_namespace: ingress-nginx
+        create_namespace: true
+        update_repo_cache: true
+        values:
+          controller:
+            service:
+              annotations:
+                service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+                service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+                service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+            publishService:
+              enabled: true
+
+    - name: Wait until ingress-nginx controller pod is ready
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: ingress-nginx
+        label_selectors:
+          - app.kubernetes.io/name=ingress-nginx
+          - app.kubernetes.io/component=controller
+      register: nginx_pods
+      until: nginx_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      retries: 20
+      delay: 15
+
+    - name: Get external NLB address of ingress-nginx
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Service
+        name: ingress-nginx-controller
+        namespace: ingress-nginx
+      register: ingress_service
+
+    - name: Show the public NLB hostname
+      debug:
+        msg: >-
+          🌍 Public NGINX Ingress is ready!
+          External Address:
+          {{
+            ingress_service.resources[0].status.loadBalancer.ingress[0].hostname
+              if ingress_service.resources[0].status.loadBalancer.ingress[0].hostname is defined
+              else ingress_service.resources[0].status.loadBalancer.ingress[0].ip
+          }}

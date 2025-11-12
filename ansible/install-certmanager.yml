@@ -1,0 +1,23 @@
+---
+- name: Install Cert Manager
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Create cert-manager namespace
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: cert-manager
+        state: present
+
+    - name: Install Cert-Manager CRDs
+      kubernetes.core.k8s:
+        state: present
+        src: https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.crds.yaml
+
+    - name: Install Cert-Manager components
+      kubernetes.core.k8s:
+        state: present
+        src: https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml

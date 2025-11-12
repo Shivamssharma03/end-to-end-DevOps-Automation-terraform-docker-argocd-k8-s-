@@ -1,0 +1,14 @@
+---
+- name: Install Stakater Reloader
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  collections:
+    - kubernetes.core
+
+  tasks:
+    - name: Deploy Stakater Reloader
+      kubernetes.core.k8s:
+        state: present
+        src: https://raw.githubusercontent.com/stakater/Reloader/master/deployments/kubernetes/reloader.yaml

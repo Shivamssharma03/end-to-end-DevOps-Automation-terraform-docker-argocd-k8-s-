@@ -1,0 +1,26 @@
+const express = require('express')
+const mongoose = require('mongoose');
+require('dotenv').config({ path: './config/.env' });
+
+const mongoURI =  process.env.MONGO_URI
+const removeDB = async () => {
+    await mongoose.connect(mongoURI , { useNewUrlParser : true } , async(err,result) =>{
+        if(err){
+            console.log("---",err)
+        }
+        else{
+            console.log("connected in cartDB")
+            const fetched_data = await mongoose.connection.db.collection("cartitems")
+            fetched_data.find({}).toArray(function(err , data){
+                if(err) console.log(err);
+                // else console.log(data)
+                
+                
+            })
+        }
+    })
+}
+
+
+
+module.exports = removeDB
