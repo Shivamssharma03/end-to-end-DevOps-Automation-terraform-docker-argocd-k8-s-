@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
-  namespace: default
+  namespace: tesify-ingress-route
   labels:
     app: frontend
 spec:
