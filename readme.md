@@ -1,5 +1,5 @@
 # ☕ Tesify — Full-Stack Kubernetes Deployment on AWS EKS  
-### Automated Infrastructure with **Terraform + Ansible + ArgoCD + NGINX + Cert-Manager**
+### Automated Infrastructure with **Terraform + Ansible + ArgoCD + NGINX + Cert-Manager + Docker + Kubernetes**
 
 ---
 
