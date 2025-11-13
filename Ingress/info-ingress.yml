@@ -2,17 +2,17 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: info-ingress
-  namespace: tesify
+  namespace: tesify-ingress-route
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-    nginx.ingress.kubernetes.io/use-regex: "true"
+    
 spec:
   tls:
   - hosts:
     - tesify.site
     - www.tesify.site
+    - api.tesify.site
     secretName: tesify.site-tls
   rules:
   - host: tesify.site

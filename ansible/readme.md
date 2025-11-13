@@ -46,6 +46,11 @@
 
 
 
-# Run the Playbook for creation secret volume mount
-`ansible-playbook -i inventory.ini secret-volume-create.yml`
+# Run the Playbook for install-reloader.yml
+`ansible-playbook -i inventory.ini install-reloader.yml`
 
+# for creating the env secrect
+`ansible-playbook -i inventory.ini create-backend-secret.yml`
+
+# for propviding thecertificates 
+`ansible-playbook -i inventory.ini create-cluster-issuer.yml`

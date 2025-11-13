@@ -1,23 +1,46 @@
 ---
-- name: Install Cert Manager
+- name: Install Cert-Manager in Kubernetes
   hosts: localhost
   connection: local
   gather_facts: no
 
+  vars:
+    cert_manager_version: "v1.15.3"  # ✅ Pin version for consistency
+
   tasks:
-    - name: Create cert-manager namespace
+    - name: Ensure cert-manager namespace exists
       kubernetes.core.k8s:
         api_version: v1
         kind: Namespace
         name: cert-manager
         state: present
 
-    - name: Install Cert-Manager CRDs
+    - name: Apply Cert-Manager CRDs
       kubernetes.core.k8s:
         state: present
-        src: https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.crds.yaml
+        src: "https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cert-manager.crds.yaml"
 
     - name: Install Cert-Manager components
       kubernetes.core.k8s:
         state: present
-        src: https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+        src: "https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cert-manager.yaml"
+
+    - name: Wait for cert-manager deployment rollout
+      kubernetes.core.k8s_info:
+        api_version: apps/v1
+        kind: Deployment
+        namespace: cert-manager
+      register: cert_manager_deployments
+
+    - name: Wait for cert-manager pods to be ready
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: cert-manager
+        label_selectors:
+          - "app.kubernetes.io/instance=cert-manager"
+      register: cert_manager_pods
+      until: >
+        cert_manager_pods.resources | length > 0 and
+        (cert_manager_pods.resources | map(attribute='status.containerStatuses') | flatten | selectattr('ready','equalto',true) | list | length) >= 3
+      retries: 10
+      delay: 15

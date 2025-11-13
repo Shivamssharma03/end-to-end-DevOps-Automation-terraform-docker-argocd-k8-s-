@@ -1,30 +1,36 @@
----
-- name: Install Argo CD
-  hosts: localhost
-  connection: local
-  gather_facts: no
-
-  tasks:
-    - name: Create ArgoCD namespace
-      kubernetes.core.k8s:
+      kubernetes.core.k8s_info:
         api_version: v1
-        kind: Namespace
-        name: argocd
-        state: present
+        kind: Pod
+        namespace: argocd
+        label_selectors:
+          - app.kubernetes.io/name=argocd-server
+      register: argocd_pods
+      until: argocd_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
+      retries: 20
+      delay: 15
 
-    - name: Apply ArgoCD install manifests
-      kubernetes.core.k8s:
-        state: present
-        src: https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    - name: Wait until ArgoCD LoadBalancer gets an external IP/DNS
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Service
+        name: argocd-server
+        namespace: argocd
+      register: argocd_svc
+      until: >
+        argocd_svc.resources
+        and argocd_svc.resources[0].status.loadBalancer is defined
+        and argocd_svc.resources[0].status.loadBalancer.ingress is defined
+        and (argocd_svc.resources[0].status.loadBalancer.ingress[0].hostname is defined
+             or argocd_svc.resources[0].status.loadBalancer.ingress[0].ip is defined)
+      retries: 20
+      delay: 15
 
-    - name: Patch ArgoCD server service to LoadBalancer 
-      kubernetes.core.k8s:
-        state: patched
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: argocd-server
-            namespace: argocd
-          spec:
-            type: LoadBalancer
+    - name: Show ArgoCD public endpoint
+      debug:
+        msg: >-
+          🌍 ArgoCD is ready!
+          {{
+            argocd_svc.resources[0].status.loadBalancer.ingress[0].hostname
+              if argocd_svc.resources[0].status.loadBalancer.ingress[0].hostname is defined
+              else argocd_svc.resources[0].status.loadBalancer.ingress[0].ip
+          }}
