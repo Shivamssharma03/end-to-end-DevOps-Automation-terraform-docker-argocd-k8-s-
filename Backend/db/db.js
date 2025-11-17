@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose');
 require('dotenv').config({ path: './config/.env' });
 const mongoURI = process.env.MONGO_URI
-// const mongoURI =  'mongodb+srv://mayank:mayank2002@food-order.zuokjbh.mongodb.net/foodordering?retryWrites=true&w=majority'
+
 const mongoDB = async () => {
     // mongoose.set('strictQuery', false);
     await mongoose.connect(process.env.MONGO_URI, { 
