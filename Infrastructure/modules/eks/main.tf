@@ -21,12 +21,7 @@ resource "aws_eks_cluster" "this" {
     security_group_ids      = [var.cluster_sg_id]       # EKS control plane SG
   }
 
-  # compute_config {
-  #   enabled = true
-  #   elastic_load_balancing {
-  #     enabled = true
-  #   }
-  # }
+
 
   access_config {
     authentication_mode = "API"
@@ -35,6 +30,8 @@ resource "aws_eks_cluster" "this" {
   tags = {
     Project = var.project
     Name    = "${var.project}-eks-control-plane"
+
+
   }
 }
 
@@ -61,6 +58,10 @@ resource "aws_eks_node_group" "this" {
     tags = {
     Project = var.project
     Name    = "${var.project}-worker-node"
+
+     # Required for Cluster Autoscaler
+    "k8s.io/cluster-autoscaler/enabled" = "true"
+    "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
   }
   capacity_type  = "ON_DEMAND"
   instance_types = var.node_instance_types

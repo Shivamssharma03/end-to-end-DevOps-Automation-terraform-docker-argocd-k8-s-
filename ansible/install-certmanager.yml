@@ -5,7 +5,7 @@
   gather_facts: no
 
   vars:
-    cert_manager_version: "v1.15.3"  # ✅ Pin version for consistency
+    cert_manager_version: "v1.15.3" 
 
   tasks:
     - name: Ensure cert-manager namespace exists

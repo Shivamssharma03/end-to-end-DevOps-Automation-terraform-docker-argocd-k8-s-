@@ -26,7 +26,7 @@ spec:
             - name: secret-volume
               mountPath: /app/config/.env      # where your app expects it env
               subPath: .env
-          resources:                           # ✅ moved under container
+          resources:                           
             requests:
               cpu: "200m"
               memory: "256Mi"

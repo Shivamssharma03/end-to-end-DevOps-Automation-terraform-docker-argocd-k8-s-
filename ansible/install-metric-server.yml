@@ -1,0 +1,37 @@
+---
+- name: Install Metrics Server on Kubernetes
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+
+    - name: Download Metrics Server manifest
+    # This downloads the latest stable manifest from GitHub
+      get_url:
+        url: "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml"
+        dest: "/tmp/metrics-server.yaml"
+
+    - name: Apply Metrics Server manifest
+      command: kubectl apply -f /tmp/metrics-server.yaml
+      register: apply_output
+
+    - name: Show kubectl apply output
+      debug:
+        msg: "{{ apply_output.stdout }}"
+
+    - name: Wait for Metrics Server pod to be ready
+      shell: |
+        kubectl -n kube-system get deploy metrics-server -o jsonpath='{.status.readyReplicas}'
+      register: metrics_ready
+      until: metrics_ready.stdout | int >= 1
+      retries: 20
+      delay: 10
+
+    - name: Confirm installation
+      command: kubectl get deployment metrics-server -n kube-system
+      register: final_status
+
+    - name: Display final status
+      debug:
+        var: final_status.stdout

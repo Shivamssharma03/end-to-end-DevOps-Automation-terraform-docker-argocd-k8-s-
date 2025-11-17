@@ -1,4 +1,4 @@
-# ☕ Tesify — Full-Stack Kubernetes Deployment on AWS EKS  
+# ☕ — Full-Stack Kubernetes Deployment on AWS EKS  
 ### Automated Infrastructure with **Terraform + Ansible + ArgoCD + NGINX + Cert-Manager + Docker + Kubernetes**
 
 ---
@@ -46,7 +46,8 @@ Kubernetes Workloads
 
 ## ⚙️ Repository Structure
 
-├── terraform/
+
+├── Infrastructure/
 │ ├── main.tf
 │ ├── variables.tf
 │ ├── outputs.tf
@@ -62,35 +63,18 @@ Kubernetes Workloads
 │ ├── install-argocd.yml
 │ ├── install-reloader.yml
 │ ├── secret-volume-create.yml
-│ └── inventory.yml (localhost)
-│
-└── ingress/
-├── info-ingress.yaml
-├── terraform/
-│ ├── main.tf
-│ ├── variables.tf
-│ ├── outputs.tf
-│ └── modules/
-│ ├── vpc/
-│ ├── eks/
-│ └── iam/
-│
-├── ansible/
-│ ├── install-nginx-ingress.yml
-│ ├── install-cert-manager.yml
-│ ├── create-cluster-issuer.yml
-│ ├── install-argocd.yml
-│ ├── install-reloader.yml
-│ ├── secret-volume-create.yml
-│ └── inventory.yml (localhost)
+│ └── install-metric-server.yml
+  └── inventory.yml (localhost)
 │
 └── ingress/
 ├── info-ingress.yaml
 k8s/
- ├── backend-deployment.yaml
- ├── backend-service.yaml
- ├── frontend-deployment.yaml
- ├── frontend-service.yaml
+ ├── backend-deployment.yml
+ ├──backend-hpa.yml
+ ├── backend-service.yml
+ ├── frontend-deployment.yml
+ ├──frontend-hpa.yml
+ ├── frontend-service.yml
 
 ---
 

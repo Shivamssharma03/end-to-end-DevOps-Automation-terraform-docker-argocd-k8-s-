@@ -47,7 +47,7 @@ module "eks" {
 
   cluster_role_arn     = module.iam.cluster_role_arn
   node_role_arn        = module.iam.node_role_arn
- 
+  
   nodes_sg_id =         module.sg.eks_nodes_sg_id
   cluster_sg_id      = module.sg.eks_cluster_sg_id
   node_instance_types  = var.node_instance_types
